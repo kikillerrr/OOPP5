@@ -6,10 +6,14 @@
 #include <vector>
 #include <array>
 #include <cstddef>
+#include <type_traits>
 
 // Основной шаблонный класс
 template <typename T, int Dimensions>
 class PointCloud {
+    static_assert(std::is_arithmetic<T>::value,
+                  "PointCloud supports only arithmetic types");
+
 private:
     std::vector<std::array<T, Dimensions>> points;
 
@@ -48,6 +52,9 @@ public:
 // Частичная специализация для трехмерного облака
 template <typename T>
 class PointCloud<T, 3> {
+    static_assert(std::is_arithmetic<T>::value,
+                  "PointCloud supports only arithmetic types");
+
 private:
     std::vector<std::array<T, 3>> points;
 
@@ -75,7 +82,6 @@ public:
         }
     }
 
-    // Векторное произведение двух трехмерных векторов
     static std::array<T, 3> crossProduct(
         const std::array<T, 3>& a,
         const std::array<T, 3>& b) {

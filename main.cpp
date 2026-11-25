@@ -5,7 +5,6 @@
 int main() {
     std::cout << "Лабораторная работа №5\n\n";
 
-    // Двумерное облако
     PointCloud<double, 2> cloud2D;
 
     cloud2D.addPoint({1.0, 2.0});
@@ -15,7 +14,6 @@ int main() {
 
     std::cout << "\n";
 
-    // Трехмерное облако
     PointCloud<double, 3> cloud3D;
 
     cloud3D.addPoint({1.0, 2.0, 3.0});
@@ -25,7 +23,6 @@ int main() {
 
     std::cout << "\n";
 
-    // Проверка векторного произведения
     std::array<double, 3> vectorA = {1.0, 0.0, 0.0};
     std::array<double, 3> vectorB = {0.0, 1.0, 0.0};
 
