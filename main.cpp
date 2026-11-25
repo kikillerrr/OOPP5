@@ -3,15 +3,25 @@
 #include "PointCloud.h"
 
 int main() {
-    PointCloud<double> cloud;
+    std::cout << "Лабораторная работа №5\n\n";
 
-    cloud.addPoint({1.0, 2.0});
-    cloud.addPoint({3.0, 4.0});
+    // Двумерное облако
+    PointCloud<double, 2> cloud2D;
 
-    std::cout << "Лабораторная работа №5\n";
-    std::cout << "Шаблонный класс PointCloud\n";
+    cloud2D.addPoint({1.0, 2.0});
+    cloud2D.addPoint({3.0, 4.0});
 
-    cloud.printSize();
+    cloud2D.print();
+
+    std::cout << "\n";
+
+    // Трехмерное облако
+    PointCloud<double, 3> cloud3D;
+
+    cloud3D.addPoint({1.0, 2.0, 3.0});
+    cloud3D.addPoint({4.0, 5.0, 6.0});
+
+    cloud3D.print();
 
     return 0;
 }

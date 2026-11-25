@@ -5,16 +5,17 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <cstddef>
 
 // Шаблонный класс облака точек
-template <typename T>
+template <typename T, int Dimensions>
 class PointCloud {
 private:
-    std::vector<std::array<T, 2>> points;
+    std::vector<std::array<T, Dimensions>> points;
 
 public:
     // Добавление точки
-    void addPoint(const std::array<T, 2>& point) {
+    void addPoint(const std::array<T, Dimensions>& point) {
         points.push_back(point);
     }
 
@@ -23,10 +24,28 @@ public:
         return points.size();
     }
 
-    // Вывод количества точек
-    void printSize() const {
-        std::cout << "Количество точек: "
-                  << points.size() << '\n';
+    // Получение всех точек
+    const std::vector<std::array<T, Dimensions>>& getPoints() const {
+        return points;
+    }
+
+    // Вывод облака
+    void print() const {
+        std::cout << "Облако точек (" << Dimensions << "D):\n";
+
+        for (const auto& point : points) {
+            std::cout << "(";
+
+            for (int i = 0; i < Dimensions; ++i) {
+                std::cout << point[i];
+
+                if (i < Dimensions - 1) {
+                    std::cout << ", ";
+                }
+            }
+
+            std::cout << ")\n";
+        }
     }
 };
 
