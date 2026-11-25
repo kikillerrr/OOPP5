@@ -8,6 +8,9 @@
 #include <cstddef>
 #include <type_traits>
 #include <cmath>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 // Общее хранилище счетчика точек
 class PointCloudCounter {
@@ -29,23 +32,23 @@ class PointCloud {
     static_assert(std::is_arithmetic<T>::value,
                   "PointCloud supports only arithmetic types");
 
+    static_assert(Dimensions > 0,
+                  "Dimensions must be positive");
+
 private:
     std::vector<std::array<T, Dimensions>> points;
 
 public:
-    // Статический член — общий счетчик точек
     inline static std::size_t& totalPoints =
         PointCloudCounter::totalPoints;
 
     PointCloud() = default;
 
-    // Копирующий конструктор
     PointCloud(const PointCloud& other)
         : points(other.points) {
         totalPoints += points.size();
     }
 
-    // Копирующее присваивание
     PointCloud& operator=(const PointCloud& other) {
         if (this != &other) {
             totalPoints -= points.size();
@@ -56,7 +59,6 @@ public:
         return *this;
     }
 
-    // Деструктор
     ~PointCloud() {
         totalPoints -= points.size();
     }
@@ -75,9 +77,83 @@ public:
         return points;
     }
 
-    // Статическая функция получения общего количества точек
     static std::size_t getTotalPoints() {
         return totalPoints;
+    }
+
+    // Чтение точек из файла
+    bool loadFromFile(const std::string& filename) {
+        std::ifstream file(filename);
+
+        if (!file.is_open()) {
+            std::cerr << "Не удалось открыть файл: "
+                      << filename << '\n';
+            return false;
+        }
+
+        std::vector<std::array<T, Dimensions>> loadedPoints;
+        std::string line;
+
+        while (std::getline(file, line)) {
+            if (line.empty()) {
+                continue;
+            }
+
+            std::istringstream stream(line);
+            std::array<T, Dimensions> point{};
+
+            for (int i = 0; i < Dimensions; ++i) {
+                if (!(stream >> point[i])) {
+                    std::cerr << "Некорректная точка в файле.\n";
+                    return false;
+                }
+            }
+
+            std::string extra;
+
+            if (stream >> extra) {
+                std::cerr << "Слишком много координат в строке.\n";
+                return false;
+            }
+
+            loadedPoints.push_back(point);
+        }
+
+        if (file.bad()) {
+            std::cerr << "Ошибка чтения файла.\n";
+            return false;
+        }
+
+        for (const auto& point : loadedPoints) {
+            addPoint(point);
+        }
+
+        return true;
+    }
+
+    // Запись точек в файл
+    bool saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+
+        if (!file.is_open()) {
+            std::cerr << "Не удалось создать файл: "
+                      << filename << '\n';
+            return false;
+        }
+
+        for (const auto& point : points) {
+            for (int i = 0; i < Dimensions; ++i) {
+                file << point[i];
+
+                if (i < Dimensions - 1) {
+                    file << ' ';
+                }
+            }
+
+            file << '\n';
+        }
+
+        return file.good();
     }
 
     void print() const {
@@ -151,6 +227,73 @@ public:
         };
     }
 
+    // Чтение трехмерных точек из файла
+    bool loadFromFile(const std::string& filename) {
+        std::ifstream file(filename);
+
+        if (!file.is_open()) {
+            std::cerr << "Не удалось открыть файл: "
+                      << filename << '\n';
+            return false;
+        }
+
+        std::vector<std::array<T, 3>> loadedPoints;
+        std::string line;
+
+        while (std::getline(file, line)) {
+            if (line.empty()) {
+                continue;
+            }
+
+            std::istringstream stream(line);
+            std::array<T, 3> point{};
+
+            if (!(stream >> point[0] >> point[1] >> point[2])) {
+                std::cerr << "Некорректная точка в файле.\n";
+                return false;
+            }
+
+            std::string extra;
+
+            if (stream >> extra) {
+                std::cerr << "Слишком много координат в строке.\n";
+                return false;
+            }
+
+            loadedPoints.push_back(point);
+        }
+
+        if (file.bad()) {
+            std::cerr << "Ошибка чтения файла.\n";
+            return false;
+        }
+
+        for (const auto& point : loadedPoints) {
+            addPoint(point);
+        }
+
+        return true;
+    }
+
+    // Запись трехмерных точек в файл
+    bool saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+
+        if (!file.is_open()) {
+            std::cerr << "Не удалось создать файл: "
+                      << filename << '\n';
+            return false;
+        }
+
+        for (const auto& point : points) {
+            file << point[0] << ' '
+                 << point[1] << ' '
+                 << point[2] << '\n';
+        }
+
+        return file.good();
+    }
+
     void print() const {
         printCloud(*this);
     }
@@ -159,7 +302,7 @@ public:
         const PointCloud<T, 3>& cloud);
 };
 
-// Глобальная функция вычисления центроида
+// Глобальная шаблонная функция вычисления центроида
 template <typename T, int Dimensions>
 std::array<double, Dimensions> calculateCentroid(
     const PointCloud<T, Dimensions>& cloud) {
@@ -183,7 +326,7 @@ std::array<double, Dimensions> calculateCentroid(
     return center;
 }
 
-// Глобальная функция вычисления расстояния
+// Глобальная шаблонная функция вычисления расстояния
 template <typename T, std::size_t Dimensions>
 double distanceBetween(
     const std::array<T, Dimensions>& a,

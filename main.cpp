@@ -3,33 +3,45 @@
 #include "PointCloud.h"
 
 int main() {
-    std::cout << "Лабораторная работа №5\n\n";
+    std::cout << "===== ЛАБОРАТОРНАЯ РАБОТА №5 =====\n\n";
 
-    // Создаем двумерное облако
+    // Создаем двумерное облако и загружаем точки
     PointCloud<double, 2> cloud2D;
 
-    cloud2D.addPoint({1.0, 2.0});
-    cloud2D.addPoint({3.0, 4.0});
+    if (!cloud2D.loadFromFile("points2d.txt")) {
+        std::cerr << "Не удалось загрузить двумерные точки.\n";
+        return 1;
+    }
+
+    std::cout << "Двумерное облако успешно загружено.\n";
+    std::cout << "Количество точек: "
+              << cloud2D.size() << "\n\n";
 
     printCloud(cloud2D);
 
     auto center2D = calculateCentroid(cloud2D);
 
-    std::cout << "Центроид 2D: ("
+    std::cout << "\nЦентроид 2D: ("
               << center2D[0] << ", "
               << center2D[1] << ")\n\n";
 
-    // Создаем трехмерное облако
+    // Создаем трехмерное облако и загружаем точки
     PointCloud<double, 3> cloud3D;
 
-    cloud3D.addPoint({1.0, 2.0, 3.0});
-    cloud3D.addPoint({4.0, 5.0, 6.0});
+    if (!cloud3D.loadFromFile("points3d.txt")) {
+        std::cerr << "Не удалось загрузить трехмерные точки.\n";
+        return 1;
+    }
+
+    std::cout << "Трехмерное облако успешно загружено.\n";
+    std::cout << "Количество точек: "
+              << cloud3D.size() << "\n\n";
 
     printCloud(cloud3D);
 
     auto center3D = calculateCentroid(cloud3D);
 
-    std::cout << "Центроид 3D: ("
+    std::cout << "\nЦентроид 3D: ("
               << center3D[0] << ", "
               << center3D[1] << ", "
               << center3D[2] << ")\n\n";
@@ -46,7 +58,7 @@ int main() {
               << cross[1] << ", "
               << cross[2] << ")\n\n";
 
-    // Проверка расстояния
+    // Проверка расстояния между точками
     std::array<double, 2> pointA = {0.0, 0.0};
     std::array<double, 2> pointB = {3.0, 4.0};
 
@@ -56,7 +68,17 @@ int main() {
     // Общий счетчик точек
     std::cout << "Общее количество точек во всех облаках: "
               << PointCloud<double, 2>::getTotalPoints()
-              << '\n';
+              << "\n\n";
+
+    // Сохранение точек в файлы
+    if (cloud2D.saveToFile("output2d.txt") &&
+        cloud3D.saveToFile("output3d.txt")) {
+        std::cout << "Точки успешно сохранены в файлы.\n";
+    } else {
+        std::cout << "Ошибка при сохранении точек.\n";
+    }
+
+    std::cout << "\n===== ПРОГРАММА ЗАВЕРШЕНА =====\n";
 
     return 0;
 }
