@@ -9,11 +9,17 @@
 #include <type_traits>
 #include <cmath>
 
+// Общее хранилище счетчика точек
+class PointCloudCounter {
+public:
+    inline static std::size_t totalPoints = 0;
+};
+
 // Предварительное объявление класса
 template <typename T, int Dimensions>
 class PointCloud;
 
-// Предварительное объявление дружественной функции
+// Предварительное объявление функции вывода
 template <typename T, int Dimensions>
 void printCloud(const PointCloud<T, Dimensions>& cloud);
 
@@ -27,8 +33,38 @@ private:
     std::vector<std::array<T, Dimensions>> points;
 
 public:
+    // Статический член — общий счетчик точек
+    inline static std::size_t& totalPoints =
+        PointCloudCounter::totalPoints;
+
+    PointCloud() = default;
+
+    // Копирующий конструктор
+    PointCloud(const PointCloud& other)
+        : points(other.points) {
+        totalPoints += points.size();
+    }
+
+    // Копирующее присваивание
+    PointCloud& operator=(const PointCloud& other) {
+        if (this != &other) {
+            totalPoints -= points.size();
+            points = other.points;
+            totalPoints += points.size();
+        }
+
+        return *this;
+    }
+
+    // Деструктор
+    ~PointCloud() {
+        totalPoints -= points.size();
+    }
+
+    // Добавление точки
     void addPoint(const std::array<T, Dimensions>& point) {
         points.push_back(point);
+        ++totalPoints;
     }
 
     std::size_t size() const {
@@ -39,11 +75,15 @@ public:
         return points;
     }
 
+    // Статическая функция получения общего количества точек
+    static std::size_t getTotalPoints() {
+        return totalPoints;
+    }
+
     void print() const {
         printCloud(*this);
     }
 
-    // Дружественная шаблонная функция
     friend void printCloud<T, Dimensions>(
         const PointCloud<T, Dimensions>& cloud);
 };
@@ -58,8 +98,33 @@ private:
     std::vector<std::array<T, 3>> points;
 
 public:
+    inline static std::size_t& totalPoints =
+        PointCloudCounter::totalPoints;
+
+    PointCloud() = default;
+
+    PointCloud(const PointCloud& other)
+        : points(other.points) {
+        totalPoints += points.size();
+    }
+
+    PointCloud& operator=(const PointCloud& other) {
+        if (this != &other) {
+            totalPoints -= points.size();
+            points = other.points;
+            totalPoints += points.size();
+        }
+
+        return *this;
+    }
+
+    ~PointCloud() {
+        totalPoints -= points.size();
+    }
+
     void addPoint(const std::array<T, 3>& point) {
         points.push_back(point);
+        ++totalPoints;
     }
 
     std::size_t size() const {
@@ -70,10 +135,11 @@ public:
         return points;
     }
 
-    void print() const {
-        printCloud(*this);
+    static std::size_t getTotalPoints() {
+        return totalPoints;
     }
 
+    // Векторное произведение
     static std::array<T, 3> crossProduct(
         const std::array<T, 3>& a,
         const std::array<T, 3>& b) {
@@ -85,12 +151,15 @@ public:
         };
     }
 
-    // Дружественная шаблонная функция
+    void print() const {
+        printCloud(*this);
+    }
+
     friend void printCloud<T, 3>(
         const PointCloud<T, 3>& cloud);
 };
 
-// Глобальная шаблонная функция вычисления центроида
+// Глобальная функция вычисления центроида
 template <typename T, int Dimensions>
 std::array<double, Dimensions> calculateCentroid(
     const PointCloud<T, Dimensions>& cloud) {
@@ -114,7 +183,7 @@ std::array<double, Dimensions> calculateCentroid(
     return center;
 }
 
-// Глобальная шаблонная функция вычисления расстояния
+// Глобальная функция вычисления расстояния
 template <typename T, std::size_t Dimensions>
 double distanceBetween(
     const std::array<T, Dimensions>& a,
@@ -133,12 +202,11 @@ double distanceBetween(
     return std::sqrt(sum);
 }
 
-// Общая версия функции вывода
+// Общая функция вывода облака
 template <typename T, int Dimensions>
 void printCloud(const PointCloud<T, Dimensions>& cloud) {
     std::cout << "Облако точек (" << Dimensions << "D):\n";
 
-    // Прямой доступ к private-полю points
     for (const auto& point : cloud.points) {
         std::cout << "(";
 
@@ -154,7 +222,7 @@ void printCloud(const PointCloud<T, Dimensions>& cloud) {
     }
 }
 
-// Явная специализация для double и трех измерений
+// Явная специализация функции вывода
 template <>
 void printCloud<double, 3>(
     const PointCloud<double, 3>& cloud) {
