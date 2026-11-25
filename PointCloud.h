@@ -9,6 +9,14 @@
 #include <type_traits>
 #include <cmath>
 
+// Предварительное объявление класса
+template <typename T, int Dimensions>
+class PointCloud;
+
+// Предварительное объявление функции вывода
+template <typename T, int Dimensions>
+void printCloud(const PointCloud<T, Dimensions>& cloud);
+
 // Основной шаблонный класс
 template <typename T, int Dimensions>
 class PointCloud {
@@ -32,21 +40,7 @@ public:
     }
 
     void print() const {
-        std::cout << "Облако точек (" << Dimensions << "D):\n";
-
-        for (const auto& point : points) {
-            std::cout << "(";
-
-            for (int i = 0; i < Dimensions; ++i) {
-                std::cout << point[i];
-
-                if (i < Dimensions - 1) {
-                    std::cout << ", ";
-                }
-            }
-
-            std::cout << ")\n";
-        }
+        printCloud(*this);
     }
 };
 
@@ -73,14 +67,7 @@ public:
     }
 
     void print() const {
-        std::cout << "Специализированное трехмерное облако:\n";
-
-        for (const auto& point : points) {
-            std::cout << "("
-                      << point[0] << ", "
-                      << point[1] << ", "
-                      << point[2] << ")\n";
-        }
+        printCloud(*this);
     }
 
     static std::array<T, 3> crossProduct(
@@ -119,7 +106,7 @@ std::array<double, Dimensions> calculateCentroid(
     return center;
 }
 
-// Вторая глобальная шаблонная функция — расстояние между точками
+// Вторая глобальная шаблонная функция — расстояние
 template <typename T, std::size_t Dimensions>
 double distanceBetween(
     const std::array<T, Dimensions>& a,
@@ -136,6 +123,41 @@ double distanceBetween(
     }
 
     return std::sqrt(sum);
+}
+
+// Общая версия глобальной функции вывода
+template <typename T, int Dimensions>
+void printCloud(const PointCloud<T, Dimensions>& cloud) {
+    std::cout << "Облако точек (" << Dimensions << "D):\n";
+
+    for (const auto& point : cloud.getPoints()) {
+        std::cout << "(";
+
+        for (int i = 0; i < Dimensions; ++i) {
+            std::cout << point[i];
+
+            if (i < Dimensions - 1) {
+                std::cout << ", ";
+            }
+        }
+
+        std::cout << ")\n";
+    }
+}
+
+// Явная специализация для double и трех измерений
+template <>
+void printCloud<double, 3>(
+    const PointCloud<double, 3>& cloud) {
+
+    std::cout << "Специализированный вывод 3D-облака:\n";
+
+    for (const auto& point : cloud.getPoints()) {
+        std::cout << "["
+                  << point[0] << "; "
+                  << point[1] << "; "
+                  << point[2] << "]\n";
+    }
 }
 
 #endif
