@@ -5,6 +5,7 @@
 int main() {
     std::cout << "Лабораторная работа №5\n\n";
 
+    // Двумерное облако
     PointCloud<double, 2> cloud2D;
 
     cloud2D.addPoint({1.0, 2.0});
@@ -12,8 +13,13 @@ int main() {
 
     cloud2D.print();
 
-    std::cout << "\n";
+    auto center2D = calculateCentroid(cloud2D);
 
+    std::cout << "Центроид 2D: ("
+              << center2D[0] << ", "
+              << center2D[1] << ")\n\n";
+
+    // Трехмерное облако
     PointCloud<double, 3> cloud3D;
 
     cloud3D.addPoint({1.0, 2.0, 3.0});
@@ -21,18 +27,19 @@ int main() {
 
     cloud3D.print();
 
-    std::cout << "\n";
+    auto center3D = calculateCentroid(cloud3D);
 
-    std::array<double, 3> vectorA = {1.0, 0.0, 0.0};
-    std::array<double, 3> vectorB = {0.0, 1.0, 0.0};
+    std::cout << "Центроид 3D: ("
+              << center3D[0] << ", "
+              << center3D[1] << ", "
+              << center3D[2] << ")\n\n";
 
-    auto result = PointCloud<double, 3>::crossProduct(
-        vectorA, vectorB);
+    // Проверка расстояния между точками
+    std::array<double, 2> pointA = {0.0, 0.0};
+    std::array<double, 2> pointB = {3.0, 4.0};
 
-    std::cout << "Векторное произведение: ("
-              << result[0] << ", "
-              << result[1] << ", "
-              << result[2] << ")\n";
+    std::cout << "Расстояние между точками: "
+              << distanceBetween(pointA, pointB) << '\n';
 
     return 0;
 }

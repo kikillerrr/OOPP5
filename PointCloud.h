@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <type_traits>
+#include <cmath>
 
 // Основной шаблонный класс
 template <typename T, int Dimensions>
@@ -93,5 +94,48 @@ public:
         };
     }
 };
+
+// Глобальная шаблонная функция вычисления центроида
+template <typename T, int Dimensions>
+std::array<double, Dimensions> calculateCentroid(
+    const PointCloud<T, Dimensions>& cloud) {
+
+    std::array<double, Dimensions> center{};
+
+    if (cloud.size() == 0) {
+        return center;
+    }
+
+    for (const auto& point : cloud.getPoints()) {
+        for (int i = 0; i < Dimensions; ++i) {
+            center[i] += static_cast<double>(point[i]);
+        }
+    }
+
+    for (int i = 0; i < Dimensions; ++i) {
+        center[i] /= cloud.size();
+    }
+
+    return center;
+}
+
+// Вторая глобальная шаблонная функция — расстояние между точками
+template <typename T, std::size_t Dimensions>
+double distanceBetween(
+    const std::array<T, Dimensions>& a,
+    const std::array<T, Dimensions>& b) {
+
+    double sum = 0.0;
+
+    for (std::size_t i = 0; i < Dimensions; ++i) {
+        double difference =
+            static_cast<double>(a[i]) -
+            static_cast<double>(b[i]);
+
+        sum += difference * difference;
+    }
+
+    return std::sqrt(sum);
+}
 
 #endif
