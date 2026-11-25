@@ -7,29 +7,25 @@
 #include <array>
 #include <cstddef>
 
-// Шаблонный класс облака точек
+// Основной шаблонный класс
 template <typename T, int Dimensions>
 class PointCloud {
 private:
     std::vector<std::array<T, Dimensions>> points;
 
 public:
-    // Добавление точки
     void addPoint(const std::array<T, Dimensions>& point) {
         points.push_back(point);
     }
 
-    // Получение количества точек
     std::size_t size() const {
         return points.size();
     }
 
-    // Получение всех точек
     const std::vector<std::array<T, Dimensions>>& getPoints() const {
         return points;
     }
 
-    // Вывод облака
     void print() const {
         std::cout << "Облако точек (" << Dimensions << "D):\n";
 
@@ -46,6 +42,49 @@ public:
 
             std::cout << ")\n";
         }
+    }
+};
+
+// Частичная специализация для трехмерного облака
+template <typename T>
+class PointCloud<T, 3> {
+private:
+    std::vector<std::array<T, 3>> points;
+
+public:
+    void addPoint(const std::array<T, 3>& point) {
+        points.push_back(point);
+    }
+
+    std::size_t size() const {
+        return points.size();
+    }
+
+    const std::vector<std::array<T, 3>>& getPoints() const {
+        return points;
+    }
+
+    void print() const {
+        std::cout << "Специализированное трехмерное облако:\n";
+
+        for (const auto& point : points) {
+            std::cout << "("
+                      << point[0] << ", "
+                      << point[1] << ", "
+                      << point[2] << ")\n";
+        }
+    }
+
+    // Векторное произведение двух трехмерных векторов
+    static std::array<T, 3> crossProduct(
+        const std::array<T, 3>& a,
+        const std::array<T, 3>& b) {
+
+        return {
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0]
+        };
     }
 };
 
