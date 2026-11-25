@@ -1,4 +1,3 @@
-
 #ifndef POINTCLOUD_H
 #define POINTCLOUD_H
 
@@ -378,6 +377,65 @@ void printCloud<double, 3>(
                   << point[1] << "; "
                   << point[2] << "]\n";
     }
+}
+
+// Перегрузка оператора вывода <<
+template <typename T, int Dimensions>
+std::ostream& operator<<(
+    std::ostream& out,
+    const PointCloud<T, Dimensions>& cloud) {
+
+    out << "Облако точек (" << Dimensions << "D):\n";
+
+    for (const auto& point : cloud.getPoints()) {
+        out << "(";
+
+        for (int i = 0; i < Dimensions; ++i) {
+            out << point[i];
+
+            if (i < Dimensions - 1) {
+                out << ", ";
+            }
+        }
+
+        out << ")\n";
+    }
+
+    return out;
+}
+
+// Перегрузка оператора ввода >>
+template <typename T, int Dimensions>
+std::istream& operator>>(
+    std::istream& in,
+    PointCloud<T, Dimensions>& cloud) {
+
+    long long count;
+
+    if (!(in >> count) || count < 0) {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
+    std::vector<std::array<T, Dimensions>> newPoints;
+
+    for (long long i = 0; i < count; ++i) {
+        std::array<T, Dimensions> point{};
+
+        for (int j = 0; j < Dimensions; ++j) {
+            if (!(in >> point[j])) {
+                return in;
+            }
+        }
+
+        newPoints.push_back(point);
+    }
+
+    for (const auto& point : newPoints) {
+        cloud.addPoint(point);
+    }
+
+    return in;
 }
 
 #endif

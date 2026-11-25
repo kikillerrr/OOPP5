@@ -80,5 +80,17 @@ int main() {
 
     std::cout << "\n===== ПРОГРАММА ЗАВЕРШЕНА =====\n";
 
+    // Проверка перегрузки операторов ввода и вывода
+    PointCloud<double, 2> testCloud;
+
+    std::cout << "\nВведите количество точек и их координаты:\n";
+
+    if (std::cin >> testCloud) {
+        std::cout << "\nРезультат ввода:\n";
+        std::cout << testCloud;
+    } else {
+        std::cout << "Ошибка ввода данных.\n";
+    }
+
     return 0;
 }
