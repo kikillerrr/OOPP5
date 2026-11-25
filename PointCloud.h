@@ -13,7 +13,7 @@
 template <typename T, int Dimensions>
 class PointCloud;
 
-// Предварительное объявление функции вывода
+// Предварительное объявление дружественной функции
 template <typename T, int Dimensions>
 void printCloud(const PointCloud<T, Dimensions>& cloud);
 
@@ -42,6 +42,10 @@ public:
     void print() const {
         printCloud(*this);
     }
+
+    // Дружественная шаблонная функция
+    friend void printCloud<T, Dimensions>(
+        const PointCloud<T, Dimensions>& cloud);
 };
 
 // Частичная специализация для трехмерного облака
@@ -80,6 +84,10 @@ public:
             a[0] * b[1] - a[1] * b[0]
         };
     }
+
+    // Дружественная шаблонная функция
+    friend void printCloud<T, 3>(
+        const PointCloud<T, 3>& cloud);
 };
 
 // Глобальная шаблонная функция вычисления центроида
@@ -106,7 +114,7 @@ std::array<double, Dimensions> calculateCentroid(
     return center;
 }
 
-// Вторая глобальная шаблонная функция — расстояние
+// Глобальная шаблонная функция вычисления расстояния
 template <typename T, std::size_t Dimensions>
 double distanceBetween(
     const std::array<T, Dimensions>& a,
@@ -125,12 +133,13 @@ double distanceBetween(
     return std::sqrt(sum);
 }
 
-// Общая версия глобальной функции вывода
+// Общая версия функции вывода
 template <typename T, int Dimensions>
 void printCloud(const PointCloud<T, Dimensions>& cloud) {
     std::cout << "Облако точек (" << Dimensions << "D):\n";
 
-    for (const auto& point : cloud.getPoints()) {
+    // Прямой доступ к private-полю points
+    for (const auto& point : cloud.points) {
         std::cout << "(";
 
         for (int i = 0; i < Dimensions; ++i) {
@@ -152,7 +161,7 @@ void printCloud<double, 3>(
 
     std::cout << "Специализированный вывод 3D-облака:\n";
 
-    for (const auto& point : cloud.getPoints()) {
+    for (const auto& point : cloud.points) {
         std::cout << "["
                   << point[0] << "; "
                   << point[1] << "; "
